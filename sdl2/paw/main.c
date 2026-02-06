@@ -1,10 +1,13 @@
 /* This file is made for everything that is going to be on the webpage no matter what page that the
 user is on, any attempts to modify this file will also modify the entire webpage */
 
+// To make the compiler shut up
+#define SDL_MAIN_HANDLED
+
 // For SDL2
-#include <SDL2/SDL.h>
+#include <SDL2/SDL.h> // How does this code even compile..... (This line has the red line of death)
 #include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 // For the C standard library
 #include <stdbool.h>
@@ -16,10 +19,36 @@ user is on, any attempts to modify this file will also modify the entire webpage
 #include <lauxlib.h>
 #include <lualib.h>
 
+// Holds everything that's related to the state of the application
+typedef struct {
+    SDL_Renderer* renderer;
+    lua_State* L;
+    int window_w;
+    int window_h;
+    int top_bar_h;
+    int footer_h;
+} AppContext;
+
+// Stupid geometry stuff that nobody cares about
+typedef struct {
+    int x, y, w, h;
+    int radius;
+    SDL_Color color;
+} UIElement;
+
+// The text style stuff
+typedef struct {
+    const char* font_path;
+    int size;
+    SDL_Color color;
+} TextStyle;
+
 // Functions in scope
-int generate_side_bar(lua_State *l);
-void new_button(SDL_Renderer *renderer, int x, int y, int w, int h, SDL_Color color, int radius, char text[]);
-void new_text(SDL_Renderer *renderer, const char *text, const char *font_path, int font_size, int x, int y, SDL_Color color);
+int generate_side_bar(AppContext *app);
+void new_button(AppContext *app, UIElement ui, const char* text);
+void new_text(AppContext *app, TextStyle style, const char* text, int x, int y);
+int top_bar(AppContext *app);
+int footer(AppContext *app);
 
 int main() {
 	printf("PROGRAM STARTED\n");
@@ -80,94 +109,174 @@ int main() {
 	const char *text = lua_tostring(l, -1);
 
 	lua_pop(l, 2); // pop version and user_interface
+
+    // For the structures
+    AppContext app;
+    app.renderer = renderer;
+    app.L = l;
+    SDL_GetWindowSize(window, &app.window_w, &app.window_h);
 	
 // Main loop
 int running = 1;
+
 while (running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) running = 0;
     }
 
-    SDL_SetRenderDrawColor(renderer, 44, 44, 46, 255);
-    SDL_RenderClear(renderer);
+    // 1. ADD THIS LINE: Set the color back to the background color
+    SDL_SetRenderDrawColor(app.renderer, 44, 44, 46, 255); 
 
-    new_button(renderer, 0, 0,
-               width / 8, height / 12, (SDL_Color){0, 240, 255, 255}, 20, "Home");
+        SDL_RenderClear(app.renderer);
 
-	new_text(renderer, "Hello World!", "font.ttf", 24, 200, 200, (SDL_Color){255,255,255,255});
+        
+        app.top_bar_h = top_bar(&app);
+        app.footer_h = footer(&app);
+        generate_side_bar(&app);
 
-    SDL_RenderPresent(renderer);
-}
+        SDL_RenderPresent(app.renderer);
+    }
 
-// Cleanup after loop
-SDL_DestroyRenderer(renderer);
-SDL_DestroyWindow(window);
-SDL_Quit();
-return 0;
-
-}
+        // Cleanup after loop
+        SDL_DestroyRenderer(app.renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
+    }
 
 int _i = 0; // To be used as an incrimentet
 
-int generate_side_bar(lua_State *l) {
-    int button_count;
+int generate_side_bar(AppContext *app) {
+    int button_count = 10; // Initialize with a default size
+    const char *button_names[button_count];
 
-    lua_getglobal(l, "user_interface");     
-    if (!lua_istable(l, -1)) {
+    lua_getglobal(app->L, "user_interface");     
+    if (!lua_istable(app->L, -1)) {
         printf("user_interface is not a table\n");
-        lua_pop(l, 1);
+        lua_pop(app->L, 1);
         return 1;
     }
 
-    lua_getfield(l, -1, "side_menu");       
-    if (!lua_istable(l, -1)) {
+    lua_getfield(app->L, -1, "side_menu");       
+    if (!lua_istable(app->L, -1)) {
         printf("side_menu is not a table\n");
-        lua_pop(l, 2);
+        lua_pop(app->L, 2);
         return 1;
     }
 
-    lua_getfield(l, -1, "button_amount");    
-    if (!lua_isinteger(l, -1)) {
+    lua_getfield(app->L, -1, "button_amount");    
+    if (!lua_isinteger(app->L, -1)) {
         printf("button_amount is not an integer\n");
-        lua_pop(l, 3); // Haha anti-memory leak stuff =)
+        lua_pop(app->L, 3);
         return 1;
     }
 
-    button_count = (int)lua_tointeger(l, -1);
+    button_count = (int)lua_tointeger(app->L, -1);
+    lua_pop(app->L, 1); // Pop button_amount
 
-    lua_pop(l, 3); // pop button_amount, side_menu, user_interface
-
-    for (int i = 0; i <= button_count; i++) {
-    	// new_button()
-        printf("Button generated %d.\n", i);
+    lua_getfield(app->L, -1, "button_names");    
+    if (!lua_istable(app->L, -1)) {
+        printf("button_names is not a table\n");
+        lua_pop(app->L, 2);
+        return 1;
     }
 
+    // Gets all of the button names from the table, and assigns it to the button_names array
+    for (int i = 1; i <= button_count; i++) {
+        lua_rawgeti(app->L, -1, i); // Gets the button names [i]
+        if (lua_isstring(app->L, -1)) {
+            const char *name = lua_tostring(app->L, -1);
+            button_names[i - 1] = name; // Stores it inside of the array
+        } else {
+            printf("button_names[%d] is not a string\n", i); // Dumb
+        }
+        lua_pop(app->L, 1); // Pops the string value
+    }
+
+    lua_pop(app->L, 3); // pop button_amount, side_menu, user_interface
+
+    // Accessing the height and other properties from AppContext
+    int top_padding    = app->top_bar_h + app->window_h * 0.10; // Use app->top_bar_h
+    int bottom_padding = app->footer_h + app->window_h * 0.10; // Use app->footer_h
+
+    int usable_height = app->window_h - top_padding - bottom_padding;
+
+    // Total slots = button, gap, repeating + final gap
+    int total_slots = button_count * 2 + 1;
+
+    int slot_height = usable_height / total_slots;
+    int button_height = slot_height;
+    int gap_height = slot_height;
+
+    int y = top_padding + gap_height; // Start after the first gap
+
+    for (int i = 0; i < button_count; i++) {
+        UIElement ui = {0, y, app->window_w / 4, button_height, 20, {0, 240, 255, 255}};
+        new_button(app, ui, button_names[i]); // Correctly pass the UIElement and button name
+        y += button_height + gap_height; // Move down by button + gap
+    }
     return 0;
 }
 
 // This is the code to ensure that we is able to draw buttons to the screen
-void new_button(SDL_Renderer *renderer, int x, int y, int w, int h, SDL_Color color, int radius, char text[]) {
+void new_button(AppContext *app, UIElement ui, const char* text) {
 
 	// To draw the rectangle
-    roundedBoxRGBA(renderer,
-                   x, y,
-                   x + w, y + h,
-                   radius,
-                   color.r, color.g, color.b, color.a);
+    roundedBoxRGBA(app->renderer,
+                   ui.x, ui.y,
+                   ui.x + ui.w, ui.y + ui.h,
+                   ui.radius,
+                   ui.color.r, ui.color.g, ui.color.b, ui.color.a);
 
     // Render text inside button, scaled to 80% of the button size
     SDL_Color textColor = {255, 255, 255, 255};
-    int paddingX = w / 10; // 10% horizontal padding
-    int paddingY = h / 10; // 10% vertical padding
-    int textX = x + paddingX;
-    int textY = y + paddingY;
-    int textW = w - 2 * paddingX; // 80% width
-    int textH = h - 2 * paddingY; // 80% height
+    int paddingX = ui.w / 10; // 10% horizontal padding
+    int paddingY = ui.h / 10; // 10% vertical padding
+    int textX = ui.x + paddingX;
+    int textY = ui.y + paddingY;
+    int textW = ui.w - 2 * paddingX; // 80% width
+    int textH = ui.h - 2 * paddingY; // 80% height
 
-    // Crude font size calculation based on the width and height
-    int fontSize = (textW * 1.2 + textH) / 5; // weight width more
-    new_text(renderer, text, "font.ttf", fontSize, textX, textY, textColor);
+    /* Crude font size calculation based on the width and height
+    Auto-scale text to fit inside textW × textH (Scales down until it fits inside of the rectangle because I'm too lazy to program actually good logic for it)*/
+
+    int fontSize = ui.h;  // start large
+    TTF_Font* font = NULL;
+    int textW_actual, textH_actual;
+
+    while (fontSize > 5) {
+        font = TTF_OpenFont("font.ttf", fontSize);
+        if (!font) break;
+
+        TTF_SizeText(font, text, &textW_actual, &textH_actual);
+
+        if (textW_actual <= textW && textH_actual <= textH)
+            break; // fits
+
+        TTF_CloseFont(font);
+        font = NULL;
+        fontSize--;
+    }
+
+    if (!font) return;
+
+    // Render text
+    SDL_Surface* surf = TTF_RenderText_Blended(font, text, textColor);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(app->renderer, surf);
+
+    SDL_Rect dst = {
+        ui.x + (ui.w - textW_actual) / 2,
+        ui.y + (ui.h - textH_actual) / 2,
+        textW_actual,
+        textH_actual
+    };
+
+    SDL_RenderCopy(app->renderer, tex, NULL, &dst);
+
+    SDL_DestroyTexture(tex);
+    SDL_FreeSurface(surf);
+    TTF_CloseFont(font);
 }
 
 /* int int(int int) {
@@ -177,26 +286,26 @@ void new_button(SDL_Renderer *renderer, int x, int y, int w, int h, SDL_Color co
 	} else return int - (int - (int - int + 1));
 } */ 
 
-void new_text(SDL_Renderer *renderer, const char *text, const char *font_path, int font_size, int x, int y, SDL_Color color) {
+void new_text(AppContext *app, TextStyle style, const char* text, int x, int y) {
     if (TTF_Init() < 0) {
         printf("TTF_Init error: %s\n", TTF_GetError());
         return;
     }
 
-    TTF_Font* font = TTF_OpenFont(font_path, font_size);
+    TTF_Font* font = TTF_OpenFont(style.font_path, style.size);
     if (!font) {
-        printf("Failed to load the font: %s\n", font_path, TTF_GetError());
+        printf("Failed to load the font: %s\n", style.font_path);
         return;
     }
 
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, color);
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, style.color);
     if (!textSurface) {
         printf("TTF_RenderText_Blended error: %s\n", TTF_GetError());
         TTF_CloseFont(font);
         return;
     }
 
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(app->renderer, textSurface);
     if (!textTexture) {
         printf("SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
     } else {
@@ -205,10 +314,46 @@ void new_text(SDL_Renderer *renderer, const char *text, const char *font_path, i
         renderQuad.x = x;
         renderQuad.y = y;
 
-        SDL_RenderCopy(renderer, textTexture, NULL, &renderQuad);
+        SDL_RenderCopy(app->renderer, textTexture, NULL, &renderQuad);
         SDL_DestroyTexture(textTexture);
     }
 
     SDL_FreeSurface(textSurface);
     TTF_CloseFont(font);
+}
+
+int top_bar(AppContext *app) {
+    int top_bar_height = app->window_h * 0.1;
+
+    SDL_Rect topBarRect = {0, 0, app->window_w, top_bar_height};
+    SDL_SetRenderDrawColor(app->renderer, 30, 30, 30, 255);
+    SDL_RenderFillRect(app->renderer, &topBarRect);
+
+    TextStyle style = {"font.ttf", 36, {255, 255, 255, 255}};
+    new_text(app, style, "The Quest Academy Cyberpatriots Website",
+        (int)(app->window_w / 6),
+        (int)(top_bar_height / 2.5));
+
+    return top_bar_height;
+}
+
+int footer(AppContext *app) {
+    int footer_height = app->window_h * 0.1;
+
+    SDL_Rect footerRect = {0, app->window_h - footer_height, app->window_w, footer_height};
+    SDL_SetRenderDrawColor(app->renderer, 30, 30, 30, 255);
+    SDL_RenderFillRect(app->renderer, &footerRect);
+
+    TextStyle style = {"font.ttf", 24, {255, 255, 255, 255}};
+    new_text(app, style, "© 2026 Puggy Adventures. All rights reserved | Heathp3881@qackids.org",
+        (int)(app->window_w / 2.5),
+        (int)(app->window_h - footer_height / 1.5));
+
+    return footer_height;
+}
+
+int broadcast(AppContext *app, const char message[]) {
+    UIElement ui = {app->window_w / 4, app->window_h / 4, app->window_w / 2, app->window_h / 10, 30, {255, 0, 0, 255}};
+    new_button(app, ui, "Submit");
+    return 0;
 }
