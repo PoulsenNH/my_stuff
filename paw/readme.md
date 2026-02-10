@@ -1,0 +1,1 @@
+This is the file fo rthe Quset Academy Cyberpatriots Website. Everything that is inside of this folder is the source code for said project. If you find a bug / issue in this code, then please let me know.
