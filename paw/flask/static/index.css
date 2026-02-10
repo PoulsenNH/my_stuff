@@ -1,0 +1,174 @@
+:root {
+    --accent-start: #00fff9; 
+    --accent-end: #00b3ff;   
+    --bg-start: #1c1c1c;    
+    --bg-end: #121212;     
+    --sidebar-start: #222; 
+    --sidebar-end: #111;  
+    --text-color: #e0e0e0;  
+    --sidebar-width: 15vw; 
+    --button-start: #00aeff:
+    --button-start: #0059ff;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--text-color);
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    display: flex;
+    height: 100vh;
+    font-size: 1.2vw; 
+    transition: background 0.5s ease;
+}
+
+a, button {
+    cursor: default !important;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end));
+    padding: 2vh 1vw; 
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    box-shadow: 0 0 1vw rgba(0,255,255,0.1); 
+}
+
+.sidebar h2 {
+    color: #00fff9;
+    text-align: center;
+    margin: 0 0 2vh 0;
+    font-size: 1.5em; 
+    text-shadow: 0 0 0.3vw var(--accent-start);
+}
+
+.sidebar a {
+    padding: 1vh 2vw;
+    color: #00fff9;
+    text-decoration: none;
+    border-radius: 0.5vw; 
+    background: linear-gradient(90deg, rgba(0,255,249,0.05), rgba(0,179,255,0.05));
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: linear-gradient(90deg, rgba(0,255,249,0.2), rgba(0,179,255,0.2));
+    box-shadow: 0 0 1vw var(--accent-start);
+}
+
+.main {
+    flex: 1;
+    padding: 3vh 3vw; 
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+}
+
+.card {
+    background: linear-gradient(135deg, #1f1f1f, #181818);
+    border-radius: 1vw;
+    padding: 2vh 2vw;
+    box-shadow: 0 0.4vh 2vw rgba(0,255,255,0.1);
+    border-left: 0.3vw solid var(--accent-start);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.6vh 2.5vw rgba(0,255,255,0.3);
+}
+
+.card h3 {
+    margin-top: 0;
+    color: var(--accent-end);
+    text-shadow: 0 0 0.2vw var(--accent-start);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 3vw;
+    height: 1.6vw; 
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    background: linear-gradient(135deg, #333, #222);
+    border-radius: 2vw;
+    transition: 0.3s;
+    box-shadow: inset 0 0.2vw 0.4vw rgba(0,0,0,0.5);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 1.2vw;
+    width: 1.2vw;
+    left: 0.2vw;
+    bottom: 0.2vw;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+input:checked + .slider {
+    background: linear-gradient(45deg, var(--accent-start), var(--accent-end));
+    box-shadow: 0 0 0.5vw var(--accent-start);
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.4vw);
+}
+
+button {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 1vh 2vw;
+    border: none;
+    border-radius: 0.5vw;
+    background: linear-gradient(135deg, var(--button-start), var(--button-end));
+    color: #fff;
+    text-shadow: 0 0 0.2vw rgba(0,255,255,0.5);
+    box-shadow: 0 0.2vh 1vw rgba(0,255,255,0.2);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(135deg, var(--accent-end), var(--accent-start));
+    box-shadow: 0 0.4vh 1.5vw rgba(0,255,255,0.4);
+    transform: translateY(-0.1vh);
+}
+
+button:active {
+    box-shadow: 0 0.1vh 0.5vw rgba(0,255,255,0.3);
+    transform: translateY(0.1vh);
+}
+
+button:focus {
+    outline: 0.2vw solid var(--accent-start);
+    outline-offset: 0.2vw;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0vw;
+    transform: translateX(50%);
+}
+
+#version {
+    position: absolute;
+    bottom: -1vw;
+    right: 2%;
+}

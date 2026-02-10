@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Tabs</h2>
+        <a href="#">Home</a>
+        <a href="#">Learning</a>
+        <a href="#">Forks</a>
+        <a href="#">Settings</a>
+        <a href="#">About</a>
+        <a href="#">Credits</a>
+        <a href="#">Logs</a>
+    </div>
+
+    <div class="main">
+        <!-- <div class="card"> // To be used as a template for future additions to the website
+            <h3>Appearance Settings</h3>
+            <p>Adjust your theme, icons, and window behavior.</p>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label> Dark Mode
+        </div>
+        <div class="card">
+            <h3>Behavior Settings</h3>
+            <p>Customize window focus, animations, and workspace behavior.</p>
+            <label class="switch">
+            <input type="checkbox" checked>
+            <span class="slider"></span>
+            </label> Animations
+        </div> -->
+<div class="card">
+    <h3>Broadcast</h3>
+    <p>Customize window focus, animations, and workspace behavior.</p>
+
+    <form action="/your-action" method="post">
+        <label class="switch">
+        </label>
+        <button type="submit">Broadcast</button>
+    </form>
+</div>
+    <h6 id="footer">
+        @2026 Heath Nathan Poulsen | Heathp3881@qackids.org, all rights reserved.
+    </h6>
+    <h6 id="version">
+        0.1.0-alpha
+    </h6>
+    </div>
+
+</body>
+</html>
