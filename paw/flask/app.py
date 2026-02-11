@@ -1,11 +1,15 @@
 from flask import Flask, render_template
+
 app = Flask(__name__)
 
-@app.route("/")
+@app.route('/')
+def index():
+    return render_template('index.html') 
 
-def main():
-    print("Main function started")
-    return render_template("index.html")
+@app.route('/home')
+def home():
+    return render_template('main.html')  
 
-def generate_top_bar():
-    print("Generate Top Bar function started")
+@app.route('/settings')
+def settings():
+    return render_template('settings.html') 
