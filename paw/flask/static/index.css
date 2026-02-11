@@ -7,8 +7,8 @@
     --sidebar-end: #111;  
     --text-color: #e0e0e0;  
     --sidebar-width: 15vw; 
-    --button-start: #00aeff:
-    --button-start: #0059ff;
+    --button-start: #0059ff;   
+    --button-end: #00aeff;  
 }
 
 body {
