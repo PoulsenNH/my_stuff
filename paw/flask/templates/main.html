@@ -1,7 +1,8 @@
 <div class="card">
     <h3>Broadcast</h3>
-    <p>This is a generic broadcast visible to everybody.</p>
-    <form action="/your-action" method="post">
+    <p>{{ broadcast }}</p>
+    <form class="broadcast-form" method="POST" action="/home">
+        <input type="text" name="broadcast" required placeholder="Enter broadcast...">
         <button type="submit">Broadcast</button>
     </form>
 </div>
