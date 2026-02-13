@@ -169,8 +169,9 @@ button:focus {
 
 #footer {
     position: absolute;
-    bottom: 0vw;
-    transform: translateX(50%);
+    bottom: 2vw;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #version {
@@ -206,4 +207,264 @@ button:focus {
 .broadcast-form button {
     flex: 0 0 auto;          
     padding: 0.5vh 2vw;
+}
+
+.notes-page-wrapper {
+  position: relative;
+  height: 100%;
+  padding: 2vh 2vw;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+}
+
+#topbar {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  right: 22vw; 
+  height: 5vh;
+  background: linear-gradient(135deg, #1f1f1f, #181818);
+  border-radius: 1vw 1vw 0 0;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5vw;
+  box-shadow: 0 0.2vh 1vw rgba(0,255,255,0.2);
+  z-index: 3;
+}
+
+#topbar-buttons button {
+  font-size: 0.9em;
+  padding: 0.8vh 2vw;
+  border-radius: 0.5vw;
+  border: none;
+  background: linear-gradient(135deg, var(--button-start), var(--button-end));
+  color: #fff;
+  text-shadow: 0 0 0.2vw rgba(0,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#topbar-buttons button:hover {
+  background: linear-gradient(135deg, var(--accent-end), var(--accent-start));
+  box-shadow: 0 0.4vh 1vw rgba(0,255,255,0.4);
+}
+
+#rooms-sidebar {
+  position: absolute;
+  top: 2vh; 
+  right: 2vw;
+  width: 20vw;
+  bottom: 2vh;
+  background: linear-gradient(135deg, #1f1f1f, #181818); /* matches topbar now */
+  border-radius: 1vw;
+  padding: 2vh 1.5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  overflow-y: auto;
+  box-shadow: 0 0 1vw rgba(0,255,255,0.1);
+  z-index: 2;
+}
+
+/* Room cards */
+.room-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1vh 1vw;
+  border-radius: 0.5vw;
+  background: linear-gradient(135deg, #222, #111);
+  border-left: 0.3vw solid var(--accent-start);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.room-card.public { border-left-color: #00ff90; }
+.room-card.private { border-left-color: #ff0055; }
+
+.room-card:hover { box-shadow: 0 0.4vh 1vw rgba(0,255,255,0.3); }
+
+#notes-corner {
+  position: absolute;
+  top: 10vh;
+  left: 2vw;
+  width: 18vw;
+  background: linear-gradient(135deg, #1f1f1f, #181818);
+  border-radius: 1vw;
+  padding: 1.5vh 1.5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  box-shadow: 0 0.4vh 2vw rgba(0,255,255,0.1);
+  z-index: 4;
+}
+
+#note-form input,
+#note-form select,
+#note-form textarea {
+  background: linear-gradient(135deg, #222, #111);
+  border-radius: 0.5vw;
+  padding: 0.8vh 1vw;
+  border: none;
+  color: #e0e0e0;
+  box-shadow: inset 0 0.1vh 0.5vw rgba(0,255,255,0.1);
+  font-size: 0.95em;
+  transition: all 0.2s ease;
+}
+
+#note-form input:focus,
+#note-form select:focus,
+#note-form textarea:focus {
+  outline: 0.2vw solid var(--accent-start);
+  outline-offset: 0.1vw;
+  box-shadow: inset 0 0.1vh 0.5vw rgba(0,255,255,0.1), 0 0 0.5vw rgba(0,255,255,0.2);
+}
+
+#note-form .add-note-btn {
+  padding: 0.5vh 0;
+  border-radius: 0.5vw;
+  border: none;
+  background: linear-gradient(135deg, var(--button-start), var(--button-end));
+  color: #fff;
+  cursor: pointer;
+  text-shadow: 0 0 0.2vw rgba(0,255,255,0.5);
+  transition: all 0.2s ease;
+}
+
+#note-form .add-note-btn:hover {
+  background: linear-gradient(135deg, var(--accent-end), var(--accent-start));
+  box-shadow: 0 0.4vh 1vw rgba(0,255,255,0.4);
+}
+
+#notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.note-card {
+  background: linear-gradient(135deg, #222, #111);
+  border-radius: 1vw;
+  padding: 1.5vh 1.5vw;
+  box-shadow: 0 0.4vh 2vw rgba(0,255,255,0.1);
+  border-left: 0.3vw solid var(--accent-start);
+  word-wrap: break-word;
+}
+
+#create-room-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#create-room-modal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+#create-room-content {
+    background: linear-gradient(135deg, #1f1f1f, #181818);
+    padding: 2vh 2vw;
+    border-radius: 1vw;
+    width: 25vw;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+    box-shadow: 0 0.4vh 2vw rgba(0,255,255,0.2);
+}
+
+#create-room-content h3 {
+    margin: 0;
+    color: var(--accent-end);
+    text-shadow: 0 0 0.2vw var(--accent-start);
+    text-align: center;
+}
+
+#create-room-form label {
+    color: #e0e0e0;
+    margin-bottom: 0.5vh;
+}
+
+#create-room-form input,
+#create-room-form select {
+    padding: 0.8vh 1vw;
+    border-radius: 0.5vw;
+    border: none;
+    background: linear-gradient(135deg, #222, #111);
+    color: #fff;
+    box-shadow: inset 0 0.1vh 0.5vw rgba(0,255,255,0.1);
+}
+
+#create-room-form input:focus,
+#create-room-form select:focus {
+    outline: 0.2vw solid var(--accent-start);
+    outline-offset: 0.1vw;
+}
+
+#create-room-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1vw;
+    margin-top: 1vh;
+}
+
+.create-room-btn,
+.close-room-btn {
+    padding: 0.5vh 1.5vw;
+    border-radius: 0.5vw;
+    border: none;
+    background: linear-gradient(135deg, var(--button-start), var(--button-end));
+    color: #fff;
+    cursor: pointer;
+    text-shadow: 0 0 0.2vw rgba(0,255,255,0.5);
+}
+
+.create-room-btn:hover,
+.close-room-btn:hover {
+    background: linear-gradient(135deg, var(--accent-end), var(--accent-start));
+    box-shadow: 0 0.4vh 1vw rgba(0,255,255,0.4);
+}
+
+/* Modal overlay */
+#create-room-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateY(-50px);
+    background: linear-gradient(135deg, #1f1f1f, #181818);
+    border-radius: 1vw;
+    padding: 2vh 2vw;
+    box-shadow: 0 0.5vh 3vw rgba(0,255,255,0.2);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
+}
+
+/* Show modal */
+#create-room-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) translateY(0);
+}
+
+/* Modal content */
+#create-room-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
 }
