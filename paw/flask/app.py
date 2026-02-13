@@ -29,3 +29,7 @@ def home():
 @app.route('/settings')
 def settings():
     return render_template('settings.html')
+
+@app.route('/notes')
+def notes():
+    return render_template('notes.html')
